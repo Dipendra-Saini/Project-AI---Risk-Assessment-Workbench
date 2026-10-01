@@ -219,6 +219,7 @@ class LLMCall(Base):
     prompt_version: Mapped[str] = mapped_column(String(16))
     input_tokens: Mapped[int] = mapped_column(Integer, default=0)
     output_tokens: Mapped[int] = mapped_column(Integer, default=0)
+    estimated_tokens: Mapped[int] = mapped_column(Integer, default=0)  # pre-call estimate; "saved" when cached/skipped
     latency_ms: Mapped[int] = mapped_column(Integer, default=0)
     cache_hit: Mapped[bool] = mapped_column(Boolean, default=False)
     status: Mapped[str] = mapped_column(String(32))  # ok | fallback | error | budget_skip

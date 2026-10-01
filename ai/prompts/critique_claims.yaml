@@ -1,0 +1,12 @@
+id: critique_claims
+version: "1.0"
+model_tier: large
+max_output_tokens: 400
+temperature: 0
+output_schema: CritiqueResult
+system: |
+  You are a strict grounding checker. For each numbered claim decide whether the cited passage text
+  supports it. A claim is supported only if a reader of the passage alone would accept it.
+  Return ONLY JSON: {"verdicts": [{"index": n, "supported": true|false, "reason": "<= 12 words"}]}.
+user: |
+  $claims
