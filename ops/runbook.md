@@ -73,5 +73,5 @@ prompts don't cover.
 | Verify audit integrity | Audit page → "Verify chain integrity", or `GET /api/audit/verify`. Schedule it daily. |
 | Examiner request | Case → "Examiner pack" (HTML) or `GET /api/cases/{id}/examiner-pack` (JSON): facts, scores with config hash, citations, overrides, votes, decision, chain proof. |
 | Back up | `pg_dump` of the `raw` database. `audit_events`, `llm_calls` and `config_versions` are the regulatory record. |
-| Re-ingest policies after an edit | Restart the API. `ensure_reference_data` re-ingests changed chunks idempotently, keyed by chunk id and text hash. |
+| Re-ingest policies after an edit | `PYTHONPATH=src/backend .venv/bin/python scripts/reingest.py` (startup only ingests into an empty corpus). Only chunks whose text or embedding model changed are re-embedded, and the run is audited (`policy.ingested`). |
 | Record fresh LLM replays for CI | `make evals-live` with free keys set, then commit `evals/recordings/llm_recordings.jsonl`. |

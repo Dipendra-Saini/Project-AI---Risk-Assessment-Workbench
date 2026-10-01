@@ -122,7 +122,7 @@ def main() -> None:
         for cr in s.execute(select(ChangeRequest).order_by(ChangeRequest.id)).scalars():
             a = latest_assessment(s, cr.id)
             print(f"{cr.ref}  {cr.status:<26} {a.residual_tier if a else '-':<9} {cr.title}")
-    print("\nLogin at http://localhost:5173 with any demo user (password: demo):")
+    print("\nLogin at http://localhost:5173 (make web) or :8080 (make up) with any demo user (password: demo):")
     print("  product owners: priya, omar | analysts: arjun, sara | committee: meera, dev, lina, kofi")
 
 

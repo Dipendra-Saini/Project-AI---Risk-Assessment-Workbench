@@ -87,8 +87,9 @@ Design properties:
 - **DB is the source of truth, graph state is orchestration.** Nodes read current
   facts from the DB (so analyst overrides made between interrupts are honoured)
   and keep only ids, warnings, counters and the context pack in graph state.
-- **Context pack** (`raw/graph/context.py`): a compact (~1.5k tokens) structured
-  summary of the case built once after G0 and reused by every LLM node.
+- **Context pack** (`context_pack()` in `raw/services/assessment.py`): a compact (~150 tokens)
+  structured summary of the confirmed facts, built once after G0 and reused by every LLM node
+  in place of the raw documents.
 - **Bounded loops**: critique -> draft at most once; LLM repair retry at most once.
 - **Graceful degradation**: any LLM failure falls back to the deterministic
   offline provider and raises a visible warning; the case always reaches the analyst.
