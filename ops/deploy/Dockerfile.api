@@ -1,0 +1,25 @@
+# API + assessment pipeline. Build context = repo root.
+FROM python:3.12-slim AS base
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1
+WORKDIR /app
+
+COPY src/backend/requirements.txt src/backend/requirements.txt
+RUN pip install -r src/backend/requirements.txt
+
+# The app resolves config, prompts and the policy corpus relative to the repo root (/app).
+COPY src/backend src/backend
+COPY config config
+COPY ai/prompts ai/prompts
+COPY data/policies data/policies
+COPY evals evals
+COPY scripts scripts
+
+RUN useradd --create-home --uid 10001 raw && chown -R raw /app
+USER raw
+
+ENV PYTHONPATH=/app/src/backend
+EXPOSE 8000
+HEALTHCHECK --interval=10s --timeout=3s --retries=5 CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"
+# Migrate, then serve. Scale out with more replicas, not workers: graph state is checkpointed in Postgres,
+# so any replica can resume any case, and each replica exposes its own /metrics for Prometheus.
+CMD ["sh", "-c", "cd src/backend && alembic upgrade head && cd /app && uvicorn raw.main:app --host 0.0.0.0 --port 8000"]

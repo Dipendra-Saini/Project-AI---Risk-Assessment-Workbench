@@ -1,0 +1,60 @@
+# Each alert has a runbook section in ops/runbook.md (same name).
+groups:
+  - name: raw-availability
+    rules:
+      - alert: ApiDown
+        expr: up{job="raw-api"} == 0
+        for: 2m
+        labels: { severity: page }
+        annotations:
+          summary: Workbench API is not answering /metrics
+          runbook: ops/runbook.md#apidown
+
+      - alert: PipelineNodeErrors
+        expr: sum by (node) (increase(raw_pipeline_node_errors_total[15m])) > 3
+        labels: { severity: ticket }
+        annotations:
+          summary: "Graph node {{ $labels.node }} failed more than 3 times in 15 minutes"
+          runbook: ops/runbook.md#pipelinenodeerrors
+
+  - name: raw-ai-quality
+    rules:
+      - alert: LlmFallbackRateHigh
+        # Share of LLM requests answered by the deterministic fallback. Cases still flow,
+        # but analysts get less help. Usually a free-tier quota or provider outage.
+        expr: |
+          sum(rate(raw_llm_fallbacks_total[30m]))
+            / clamp_min(sum(rate(raw_llm_calls_total[30m])), 1e-9) > 0.5
+        for: 15m
+        labels: { severity: ticket }
+        annotations:
+          summary: More than half of LLM calls are falling back to deterministic output
+          runbook: ops/runbook.md#llmfallbackratehigh
+
+      - alert: CriticUnsupportedSpike
+        # Groundedness regression in production: the critic is flagging many drafted sentences.
+        expr: increase(raw_critic_unsupported_sentences_total[1h]) > 20
+        labels: { severity: ticket }
+        annotations:
+          summary: Narrative critic flagged more than 20 unsupported sentences in an hour
+          runbook: ops/runbook.md#criticunsupportedspike
+
+      - alert: AiSuggestionOverrideRateHigh
+        # Drift signal: analysts are overriding most AI factor suggestions.
+        expr: |
+          sum(increase(raw_ai_factor_reviews_total{result="overridden"}[7d]))
+            / clamp_min(sum(increase(raw_ai_factor_reviews_total[7d])), 1) > 0.4
+        labels: { severity: ticket }
+        annotations:
+          summary: Analysts overrode more than 40% of AI factor suggestions this week
+          runbook: ops/runbook.md#aisuggestionoverrideratehigh
+
+  - name: raw-sla
+    rules:
+      - alert: DecisionReadySlaBreached
+        # Brief success metric: time to decision-ready falls from 5-20 days to under 2.
+        expr: histogram_quantile(0.9, sum by (le) (rate(raw_decision_ready_seconds_bucket[7d]))) > 172800
+        labels: { severity: ticket }
+        annotations:
+          summary: p90 submitted-to-committee time is above 2 days
+          runbook: ops/runbook.md#decisionreadyslabreached

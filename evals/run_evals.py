@@ -55,6 +55,7 @@ def parse_args():
     ap.add_argument("--consistency", type=int, default=5, help="number of cases re-run for the consistency check")
     ap.add_argument("--label", default="")
     ap.add_argument("--no-gate", action="store_true")
+    ap.add_argument("--keep-db", help="write the run database here (used by ops/token_report.py)")
     return ap.parse_args()
 
 
@@ -62,7 +63,8 @@ ARGS = parse_args()
 WORK = Path(tempfile.mkdtemp(prefix="raw-evals-"))
 os.environ.update({
     "LLM_MODE": ARGS.mode, "LLM_RECORD": "true" if ARGS.record else "false", "PIPELINE_SYNC": "true",
-    "CHECKPOINT_URL": "memory", "DATABASE_URL": f"sqlite:///{WORK / 'evals.db'}", "OTEL_EXPORTER_OTLP_ENDPOINT": "",
+    "CHECKPOINT_URL": "memory", "OTEL_EXPORTER_OTLP_ENDPOINT": "",
+    "DATABASE_URL": f"sqlite:///{Path(ARGS.keep_db).resolve() if ARGS.keep_db else WORK / 'evals.db'}",
 })
 sys.path.insert(0, str(ROOT / "src" / "backend"))
 

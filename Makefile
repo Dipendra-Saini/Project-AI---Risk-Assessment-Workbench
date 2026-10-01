@@ -35,7 +35,10 @@ evals-live:  # needs free GEMINI_API_KEY / GROQ_API_KEY; records responses so CI
 	$(PY) evals/run_evals.py --mode live --record --label live
 
 tokens:
-	$(PY) ops/token_report.py
+	mkdir -p evals/.work && rm -f evals/.work/tokens.db
+	$(PY) evals/run_evals.py --mode $${LLM_MODE:-offline} --keep-db evals/.work/tokens.db --consistency 0 --no-gate --label tokens
+	rm -f evals/results/*-tokens.md evals/results/*-tokens.json
+	$(PY) ops/token_report.py --db evals/.work/tokens.db
 
 e2e:
 	cd src/frontend && npx playwright test

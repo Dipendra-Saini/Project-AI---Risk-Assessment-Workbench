@@ -17,3 +17,4 @@ uploads/
 .DS_Store
 *.tsbuildinfo
 evals/recordings/*.tmp
+evals/.work/

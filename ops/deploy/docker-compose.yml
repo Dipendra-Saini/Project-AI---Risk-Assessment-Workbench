@@ -1,0 +1,83 @@
+# Full stack on free, open-source images only.
+#   make up      (or: docker compose -f ops/deploy/docker-compose.yml up -d --build)
+#
+#   http://localhost:8080   workbench UI
+#   http://localhost:8000   API (/docs, /health, /metrics)
+#   http://localhost:6006   Arize Phoenix: LLM traces per graph node
+#   http://localhost:9090   Prometheus (alerts under /alerts)
+#   http://localhost:3000   Grafana (anonymous viewer; dashboard "Risk Assessment Workbench")
+name: raw
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: raw
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-raw-local-only}
+      POSTGRES_DB: raw
+    volumes: [pgdata:/var/lib/postgresql/data]
+    ports: ["5432:5432"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U raw"]
+      interval: 5s
+      retries: 20
+
+  api:
+    build: { context: ../.., dockerfile: ops/deploy/Dockerfile.api }
+    depends_on:
+      db: { condition: service_healthy }
+    environment:
+      DATABASE_URL: postgresql+psycopg://raw:${POSTGRES_PASSWORD:-raw-local-only}@db:5432/raw
+      CHECKPOINT_URL: postgresql://raw:${POSTGRES_PASSWORD:-raw-local-only}@db:5432/raw
+      LLM_MODE: ${LLM_MODE:-live}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      JWT_SECRET: ${JWT_SECRET:-change-me-local-compose-secret-000000000}
+      TOKEN_BUDGET_PER_CASE: ${TOKEN_BUDGET_PER_CASE:-12000}
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://phoenix:6006
+    ports: ["8000:8000"]
+    restart: unless-stopped
+
+  seed:
+    # One-shot: demo cases at every workflow stage. Safe to re-run (skips if cases exist).
+    build: { context: ../.., dockerfile: ops/deploy/Dockerfile.api }
+    depends_on:
+      api: { condition: service_healthy }
+    environment:
+      DATABASE_URL: postgresql+psycopg://raw:${POSTGRES_PASSWORD:-raw-local-only}@db:5432/raw
+      CHECKPOINT_URL: postgresql://raw:${POSTGRES_PASSWORD:-raw-local-only}@db:5432/raw
+      LLM_MODE: ${SEED_LLM_MODE:-offline}
+      PIPELINE_SYNC: "true"
+    command: ["python", "scripts/seed.py"]
+    restart: "no"
+
+  web:
+    build: { context: ../.., dockerfile: ops/deploy/Dockerfile.web }
+    depends_on: [api]
+    ports: ["8080:8080"]
+
+  phoenix:
+    image: arizephoenix/phoenix:latest
+    ports: ["6006:6006"]
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ../monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ../monitoring/alerts.yml:/etc/prometheus/alerts.yml:ro
+    ports: ["9090:9090"]
+
+  grafana:
+    image: grafana/grafana:latest
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+    volumes:
+      - ../monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ../monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    ports: ["3000:3000"]
+    depends_on: [prometheus]
+
+volumes:
+  pgdata:
