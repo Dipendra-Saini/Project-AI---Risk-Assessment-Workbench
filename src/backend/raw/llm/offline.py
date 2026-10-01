@@ -16,7 +16,7 @@ CUSTOMER_KW = {
     "non_resident": ["non-resident", "nonresident", "non resident"],
     "nonprofit": ["non-profit", "nonprofit", "charit"],
     "high_net_worth": ["high-net-worth", "high net worth", "wealth clients"],
-    "corporate": ["corporate", "legal entit", "importers", "companies"],
+    "corporate": ["corporate", "legal entit", "importers"],
     "small_business": ["small business"],
     "retail": ["retail", "consumer", "individual", "cardholder", "students", "members", "workers", "customers aged",
                "employees"],
@@ -62,8 +62,13 @@ CHANGE_KW = [
 
 
 def sentences(text: str) -> list[str]:
-    parts = re.split(r"(?<=[.!?])\s+|\n+", text)
-    return [p.strip() for p in parts if p.strip()]
+    """Split on sentence ends and blank lines; single line-wraps stay inside a sentence."""
+    paragraphs = re.split(r"\n\s*\n|\n(?=\[)", text)
+    out = []
+    for para in paragraphs:
+        joined = re.sub(r"\s*\n\s*", " ", para)
+        out += [p.strip() for p in re.split(r"(?<=[.!?])\s+", joined) if p.strip()]
+    return out
 
 
 def _first_hit(sents: list[str], kws: list[str]) -> str | None:
@@ -153,7 +158,7 @@ def extract(text: str, jurisdictions: dict[str, list[str]]) -> dict[str, Any]:
         low = s.lower()
         if low.startswith(("controls", "mitigation", "control:")):
             body = s.split(":", 1)[1] if ":" in s else s
-            controls += [c.strip(" .") for c in re.split(r",|;|\band\b", body) if c.strip(" .")]
+            controls += [re.sub(r"^and\s+", "", c.strip(" .")) for c in re.split(r",(?!\d{3})|;", body) if c.strip(" .")]
             cspan = cspan or s
     if any(c.lower().startswith("no controls") for c in controls):
         controls = []

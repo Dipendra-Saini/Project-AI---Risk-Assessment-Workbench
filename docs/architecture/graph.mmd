@@ -1,0 +1,38 @@
+---
+config:
+  flowchart:
+    curve: linear
+---
+graph TD;
+	__start__([<p>__start__</p>]):::first
+	classify_change(classify_change)
+	extract_documents(extract_documents)
+	po_gate(po_gate)
+	retrieve_policy(retrieve_policy)
+	assess_factors(assess_factors)
+	score(score)
+	draft_assessment(draft_assessment)
+	critique(critique)
+	handoff_to_analyst(handoff_to_analyst)
+	analyst_gate(analyst_gate)
+	__end__([<p>__end__</p>]):::last
+	__start__ -.-> classify_change;
+	__start__ -.-> retrieve_policy;
+	analyst_gate -.-> __end__;
+	analyst_gate -.-> draft_assessment;
+	analyst_gate -.-> po_gate;
+	analyst_gate -.-> retrieve_policy;
+	assess_factors --> score;
+	classify_change --> extract_documents;
+	critique -.-> draft_assessment;
+	critique -.-> handoff_to_analyst;
+	draft_assessment --> critique;
+	extract_documents --> po_gate;
+	handoff_to_analyst --> analyst_gate;
+	po_gate -.-> extract_documents;
+	po_gate -.-> retrieve_policy;
+	retrieve_policy --> assess_factors;
+	score --> draft_assessment;
+	classDef default fill:#f2f0ff,line-height:1.2
+	classDef first fill-opacity:0
+	classDef last fill:#bfb6fc

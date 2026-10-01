@@ -41,9 +41,12 @@ def test_no_auto_decision_via_transition(session, target):
 
 
 def test_no_auto_decision_static_guard():
-    """No module other than the state machine may assign a terminal status."""
+    """No module other than the state machine may assign or transition into a terminal status."""
     root = Path(__file__).resolve().parents[2] / "src" / "backend" / "raw"
-    pattern = re.compile(r"Status\.(APPROVED|APPROVED_WITH_CONDITIONS|REJECTED|DEFERRED)\b")
+    terminal = r"(?:Status\.)?(?:APPROVED|APPROVED_WITH_CONDITIONS|REJECTED|DEFERRED)\b"
+    pattern = re.compile(
+        rf"\.status\s*=\s*[^\n]*{terminal}|transition\([^)]*{terminal}|status\s*=\s*['\"](?:APPROVED|REJECTED|DEFERRED)"
+    )
     offenders = []
     for py in root.rglob("*.py"):
         if py.name in {"machine.py", "domain.py"}:

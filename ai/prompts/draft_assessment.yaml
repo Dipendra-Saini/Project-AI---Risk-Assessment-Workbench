@@ -22,3 +22,5 @@ user: |
   $scores
   Policy passages:
   $passages
+  Reviewer feedback on the previous draft (fix these, or "none"):
+  $feedback

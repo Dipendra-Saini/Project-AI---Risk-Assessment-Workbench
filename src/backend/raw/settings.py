@@ -11,7 +11,7 @@ class Settings(BaseSettings):
 
     database_url: str = f"sqlite:///{REPO_ROOT / 'raw.db'}"
     checkpoint_url: str = ""  # "memory" | sqlite path | postgres url; derived if empty
-    jwt_secret: str = "dev-only-secret"
+    jwt_secret: str = "dev-only-secret-change-me-in-production-0001"
     jwt_ttl_minutes: int = 12 * 60
 
     llm_mode: str = "live"  # live | offline | replay
