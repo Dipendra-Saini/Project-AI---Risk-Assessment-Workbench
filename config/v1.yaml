@@ -1,0 +1,77 @@
+# Analyst-tunable configuration, version 1.
+# Edits through the UI create a new immutable version in `config_versions`.
+# This file is the seed for version 1 only.
+
+scoring:
+  dimensions:
+    PRD: {name: Products and Services, weight: 0.20}
+    CUS: {name: Customers and Entities, weight: 0.20}
+    GEO: {name: Geography, weight: 0.20}
+    CHN: {name: Delivery Channels, weight: 0.10}
+    TRX: {name: Transactions, weight: 0.15}
+    TPV: {name: Third Parties and Vendors, weight: 0.15}
+  max_dimension_floor_ratio: 0.8   # overall >= 0.8 x worst dimension
+  mitigation_cap: 0.7              # controls remove at most 70% of inherent risk
+  residual_floor_ratio: 0.2        # residual never below 20% of inherent
+  default_rating: {likelihood: 3, impact: 3}
+  tiers:                           # residual score on 1-25 scale, lower bound inclusive
+    - {name: Low, min: 0}
+    - {name: Medium, min: 6}
+    - {name: High, min: 12}
+    - {name: Critical, min: 18}
+
+workflow:
+  quorum: 3
+  tie_outcome: DEFERRED
+  second_analyst_on_tier_change: true
+  min_override_reason_chars: 15
+  require_ai_factor_confirmation: true
+  sla_hours: {SUBMITTED: 4, IN_ASSESSMENT: 1, ANALYST_REVIEW: 24, COMMITTEE_REVIEW: 24}
+
+budget:
+  tokens_per_case: 12000
+
+# Deterministic factor rules. A rule fires when its condition matches the
+# confirmed extraction. When several rules fire for a dimension the highest
+# likelihood and highest impact win (conservative). Dimensions with no fired
+# rule go to the AI suggester and must be confirmed at gate G1.
+rules:
+  - {id: GEO-01, dim: GEO, when: {geo_category: sanctioned}, likelihood: 5, impact: 5, risk_types: [SANCTIONS], cite: SAN-POL-2.1, note: Comprehensively sanctioned jurisdiction}
+  - {id: GEO-02, dim: GEO, when: {geo_category: call_for_action}, likelihood: 5, impact: 5, risk_types: [AML, TF], cite: AML-POL-4.2, note: High-risk jurisdiction subject to a call for action}
+  - {id: GEO-03, dim: GEO, when: {geo_category: increased_monitoring}, likelihood: 4, impact: 4, risk_types: [AML], cite: AML-POL-4.2, note: Jurisdiction under increased monitoring}
+  - {id: GEO-04, dim: GEO, when: {geo_category: standard_foreign}, likelihood: 3, impact: 3, risk_types: [AML], cite: AML-POL-4.1, note: New foreign market}
+  - {id: GEO-05, dim: GEO, when: {geo_category: domestic_only}, likelihood: 1, impact: 2, risk_types: [AML], cite: AML-POL-4.1, note: Domestic only}
+  - {id: PRD-01, dim: PRD, when: {flag: crypto}, likelihood: 5, impact: 5, risk_types: [AML, SANCTIONS, FRAUD], cite: NPA-POL-3.3, note: Virtual asset exposure}
+  - {id: PRD-02, dim: PRD, when: {flag: anonymous_or_prepaid}, likelihood: 4, impact: 4, risk_types: [AML, TF], cite: NPA-POL-3.2, note: Anonymity or stored value}
+  - {id: PRD-03, dim: PRD, when: {flag: cross_border}, likelihood: 4, impact: 4, risk_types: [AML, SANCTIONS], cite: NPA-POL-3.1, note: Cross-border value transfer}
+  - {id: PRD-04, dim: PRD, when: {flag: cash}, likelihood: 4, impact: 3, risk_types: [AML], cite: NPA-POL-3.2, note: Cash intensive}
+  - {id: PRD-05, dim: PRD, when: {no_flags: [crypto, anonymous_or_prepaid, cross_border, cash]}, likelihood: 2, impact: 2, risk_types: [AML], cite: NPA-POL-3.1, note: No high-risk product features}
+  - {id: CUS-01, dim: CUS, when: {customer_type: pep}, likelihood: 5, impact: 4, risk_types: [ABC, AML], cite: AML-POL-3.3, note: Politically exposed persons}
+  - {id: CUS-02, dim: CUS, when: {customer_type: msb}, likelihood: 4, impact: 4, risk_types: [AML, TF], cite: AML-POL-3.4, note: Money services businesses}
+  - {id: CUS-03, dim: CUS, when: {customer_type: non_resident}, likelihood: 4, impact: 3, risk_types: [AML, SANCTIONS], cite: AML-POL-3.2, note: Non-resident customers}
+  - {id: CUS-04, dim: CUS, when: {customer_type: corporate}, likelihood: 3, impact: 4, risk_types: [AML], cite: AML-POL-3.5, note: Legal entities (beneficial ownership)}
+  - {id: CUS-05, dim: CUS, when: {customer_type: nonprofit}, likelihood: 3, impact: 4, risk_types: [TF], cite: AML-POL-3.6, note: Non-profit organisations}
+  - {id: CUS-06, dim: CUS, when: {customer_type: retail}, likelihood: 2, impact: 2, risk_types: [FRAUD], cite: AML-POL-3.1, note: Domestic retail consumers}
+  - {id: CUS-07, dim: CUS, when: {customer_type: small_business}, likelihood: 2, impact: 3, risk_types: [AML], cite: AML-POL-3.1, note: Small businesses}
+  - {id: CHN-01, dim: CHN, when: {channel: agent}, likelihood: 4, impact: 4, risk_types: [AML, FRAUD], cite: AML-POL-5.2, note: Agents or intermediaries}
+  - {id: CHN-02, dim: CHN, when: {channel: api}, likelihood: 4, impact: 3, risk_types: [FRAUD, AML], cite: AML-POL-5.3, note: API or embedded distribution}
+  - {id: CHN-03, dim: CHN, when: {channel: online}, likelihood: 3, impact: 3, risk_types: [FRAUD], cite: AML-POL-5.1, note: Non-face-to-face onboarding}
+  - {id: CHN-04, dim: CHN, when: {channel: mobile}, likelihood: 3, impact: 3, risk_types: [FRAUD], cite: AML-POL-5.1, note: Non-face-to-face onboarding}
+  - {id: CHN-05, dim: CHN, when: {channel: branch}, likelihood: 1, impact: 2, risk_types: [FRAUD], cite: AML-POL-5.1, note: Face-to-face branch}
+  - {id: TRX-01, dim: TRX, when: {monthly_value_usd_gte: 50000000}, likelihood: 5, impact: 5, risk_types: [AML], cite: AML-POL-6.1, note: Monthly value >= 50M}
+  - {id: TRX-02, dim: TRX, when: {monthly_value_usd_gte: 10000000}, likelihood: 4, impact: 4, risk_types: [AML], cite: AML-POL-6.1, note: Monthly value >= 10M}
+  - {id: TRX-03, dim: TRX, when: {monthly_value_usd_gte: 1000000}, likelihood: 3, impact: 3, risk_types: [AML], cite: AML-POL-6.1, note: Monthly value >= 1M}
+  - {id: TRX-04, dim: TRX, when: {monthly_value_usd_lt: 1000000}, likelihood: 2, impact: 2, risk_types: [AML], cite: AML-POL-6.1, note: Monthly value < 1M}
+  - {id: TRX-05, dim: TRX, when: {flag: instant_payments}, likelihood: 4, impact: 3, risk_types: [FRAUD, AML], cite: AML-POL-6.2, note: Instant or irrevocable settlement}
+  - {id: TPV-01, dim: TPV, when: {third_party_role: kyc}, likelihood: 4, impact: 4, risk_types: [AML], cite: TPR-POL-2.2, note: Outsourced KYC}
+  - {id: TPV-02, dim: TPV, when: {third_party_role: transaction_monitoring}, likelihood: 4, impact: 4, risk_types: [AML], cite: TPR-POL-2.2, note: Outsourced monitoring}
+  - {id: TPV-03, dim: TPV, when: {third_party_role: payments_processing}, likelihood: 3, impact: 4, risk_types: [AML, SANCTIONS], cite: TPR-POL-2.1, note: Third-party payment processor}
+  - {id: TPV-04, dim: TPV, when: {third_party_role: custody}, likelihood: 4, impact: 5, risk_types: [AML, FRAUD], cite: TPR-POL-2.3, note: Third-party custody of assets}
+  - {id: TPV-05, dim: TPV, when: {no_third_parties: true}, likelihood: 1, impact: 1, risk_types: [], cite: TPR-POL-2.1, note: No third parties involved}
+
+jurisdictions:
+  domestic: [Avalon]
+  sanctioned: [Drakmoor, Zelrania]
+  call_for_action: [Norvexia, Kharovia]
+  increased_monitoring: [Veridia, Tessaly, Mirandor, Ostrava Isles]
+  standard_foreign: [Brightland, Calderra, Luminor, Nordhaven, Westmarch]

@@ -1,0 +1,18 @@
+# Synthetic control library. Effectiveness defaults come from (synthetic) last
+# control-testing results; analysts can override per assessment with a reason.
+# `keywords` let the deterministic mapper link controls named in a submission.
+controls:
+  - {id: C-KYC-01, name: Electronic identity verification with document and liveness check, dims: [CUS, CHN], design: 0.8, operating: 0.85, keywords: [eKYC, identity verification, liveness, document verification, IDV]}
+  - {id: C-EDD-01, name: Enhanced due diligence for high-risk customers, dims: [CUS], design: 0.85, operating: 0.75, keywords: [enhanced due diligence, EDD, source of wealth, source of funds]}
+  - {id: C-UBO-01, name: Beneficial ownership verification (25% threshold), dims: [CUS], design: 0.8, operating: 0.7, keywords: [beneficial owner, UBO, ownership verification]}
+  - {id: C-SAN-01, name: Real-time sanctions and PEP screening, dims: [GEO, CUS, TRX], design: 0.9, operating: 0.85, keywords: [sanctions screening, PEP screening, watchlist, name screening]}
+  - {id: C-GEO-01, name: Geo-blocking and IP geolocation restrictions, dims: [GEO, CHN], design: 0.75, operating: 0.8, keywords: [geo-blocking, geoblocking, IP restriction, geolocation]}
+  - {id: C-TM-01, name: Automated transaction monitoring scenarios, dims: [TRX, PRD], design: 0.75, operating: 0.7, keywords: [transaction monitoring, monitoring scenarios, alerting]}
+  - {id: C-LIM-01, name: Transaction and velocity limits, dims: [TRX, PRD], design: 0.8, operating: 0.9, keywords: [limits, velocity limit, cap, transaction limit]}
+  - {id: C-FRD-01, name: Device fingerprinting and fraud scoring, dims: [CHN], design: 0.7, operating: 0.8, keywords: [device fingerprint, fraud scoring, behavioural biometrics]}
+  - {id: C-TPV-01, name: Third-party due diligence and right-to-audit, dims: [TPV], design: 0.8, operating: 0.7, keywords: [vendor due diligence, third-party due diligence, right to audit, vendor assessment]}
+  - {id: C-TPV-02, name: Ongoing vendor performance and QA sampling, dims: [TPV], design: 0.7, operating: 0.6, keywords: [quality assurance, QA sampling, vendor monitoring, SLA]}
+  - {id: C-AGT-01, name: Agent onboarding, training and mystery shopping, dims: [CHN], design: 0.7, operating: 0.6, keywords: [agent training, agent oversight, mystery shopping]}
+  - {id: C-TRV-01, name: Travel rule and payment transparency checks, dims: [TRX, PRD], design: 0.8, operating: 0.75, keywords: [travel rule, originator information, payment transparency]}
+  - {id: C-CRY-01, name: Blockchain analytics for virtual asset flows, dims: [PRD, TRX], design: 0.8, operating: 0.7, keywords: [blockchain analytics, wallet screening, chain analysis]}
+  - {id: C-ABC-01, name: Anti-bribery gifts, hospitality and intermediary review, dims: [TPV, CUS], design: 0.7, operating: 0.7, keywords: [anti-bribery, gifts and hospitality, intermediary review]}
