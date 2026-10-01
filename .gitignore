@@ -15,3 +15,5 @@ src/frontend/test-results/
 src/frontend/playwright-report/
 uploads/
 .DS_Store
+*.tsbuildinfo
+evals/recordings/*.tmp
