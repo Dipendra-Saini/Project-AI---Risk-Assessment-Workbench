@@ -1,0 +1,13 @@
+---
+description: Python backend conventions
+globs: src/backend/**/*.py, tests/**/*.py, evals/**/*.py, scripts/**/*.py
+alwaysApply: false
+---
+
+- Python 3.12+, type hints everywhere, Pydantic v2 models for every API and LLM schema.
+- SQLAlchemy 2.0 typed ORM (`Mapped[...]`). Code must run on SQLite and Postgres.
+- Pure functions for scoring and rules; no I/O inside `raw/scoring`.
+- LLM calls only via `LLMRouter.complete_json(prompt_id, variables, schema)`.
+- Prompts live in `ai/prompts/*.yaml`; bump `version` when the text changes.
+- Each new behaviour ships with a pytest. Use `LLM_MODE=offline` in tests.
+- Run `ruff check src tests` before committing.

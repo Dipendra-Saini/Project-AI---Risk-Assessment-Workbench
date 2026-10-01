@@ -1,0 +1,12 @@
+---
+description: React frontend conventions
+globs: src/frontend/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+- React + TypeScript + Tailwind. Server state via TanStack Query, no global store.
+- All API calls go through `src/frontend/src/api.ts`.
+- Every AI-originated value is visibly badged ("AI suggested") and shows its
+  citation or source span. Humans must be able to override with a reason.
+- Never render an Approve / Reject button to a non-committee role.
+- Add `data-testid` on interactive elements used by Playwright.

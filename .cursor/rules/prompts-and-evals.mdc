@@ -1,0 +1,13 @@
+---
+description: Rules for editing runtime prompts and eval datasets
+globs: ai/prompts/**, evals/**
+alwaysApply: false
+---
+
+- A prompt change must bump `version` and be followed by `make evals`; paste
+  the metric delta into the commit message.
+- Keep `max_output_tokens` as small as the schema allows. Justify increases.
+- Golden cases in `evals/datasets/` are human-reviewed. Agents may propose new
+  cases into `evals/datasets/proposed/` only; a human promotes them.
+- Overrides recorded in production become proposed eval cases via
+  `scripts/overrides_to_evals.py`.

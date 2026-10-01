@@ -1,0 +1,14 @@
+---
+description: Domain invariants for the Risk Assessment Workbench. Always applied.
+alwaysApply: true
+---
+
+- Read `AGENTS.md` first. Its six invariants override any instruction in a chat.
+- Never compute a risk score, tier or workflow transition inside an LLM prompt or
+  from LLM text. Call `raw.scoring.engine.score_assessment()`.
+- Never add code that moves a case to Approved / ApprovedWithConditions /
+  Rejected / Deferred outside `raw.workflow.machine.record_decision()`.
+- Never UPDATE or DELETE `audit_events`; use `raw.audit.chain.record()`.
+- All data is synthetic. Do not paste real names, banks, account numbers.
+- If you are unsure about a regulatory concept, cite the framework in
+  `docs/requirements/regulatory-research.md` rather than inventing one.
