@@ -94,11 +94,11 @@ def test_us01_to_us15_full_lifecycle(client):
                     json={"warnings_reason": "Reviewed flagged sentences; policy basis confirmed manually"})
     assert r.status_code == 200, r.text
 
-    if o["requires_ack"]:  # US-08
-        r = client.post(f"/api/cases/{cid}/submit-to-committee", headers=an)
-        assert r.status_code == 422 and "second analyst" in r.json()["detail"]
-        assert client.post(f"/api/cases/{cid}/overrides/{o['id']}/ack", headers=an).status_code == 422  # self-ack
-        assert client.post(f"/api/cases/{cid}/overrides/{o['id']}/ack", headers=an2).status_code == 200
+    assert o["tier_after"] != before and o["requires_ack"]  # US-08
+    r = client.post(f"/api/cases/{cid}/submit-to-committee", headers=an)
+    assert r.status_code == 422 and "second analyst" in r.json()["detail"]
+    assert client.post(f"/api/cases/{cid}/overrides/{o['id']}/ack", headers=an).status_code == 422  # self-ack
+    assert client.post(f"/api/cases/{cid}/overrides/{o['id']}/ack", headers=an2).status_code == 200
 
     case = client.post(f"/api/cases/{cid}/submit-to-committee", headers=an).json()
     assert case["status"] == "COMMITTEE_REVIEW"

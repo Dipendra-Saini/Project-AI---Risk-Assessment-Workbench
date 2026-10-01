@@ -21,6 +21,10 @@ CUSTOMER_KW = {
     "retail": ["retail", "consumer", "individual", "cardholder", "students", "members", "workers", "customers aged",
                "employees"],
 }
+# Phrases whose words would otherwise trigger a broader customer type: the HNW segment is not also
+# "retail", and "corporate payments/cards" names a product, not a customer segment.
+CUSTOMER_SCRUB = re.compile(r"(?<=high-net-worth) individuals|(?<=high net worth) individuals|"
+                            r"\bcorporate (?=(payments|cards?|banking|treasury|account))", re.I)
 CHANNEL_KW = {
     "branch": ["branch", "face to face", "face-to-face"],
     "online": ["online", "website", "internet banking", "web "],
@@ -90,8 +94,9 @@ def extract(text: str, jurisdictions: dict[str, list[str]]) -> dict[str, Any]:
     out: dict[str, Any] = {}
 
     found, spans = [], []
+    customer_sents = [CUSTOMER_SCRUB.sub(" ", s) for s in sents]
     for ctype, kws in CUSTOMER_KW.items():
-        s = _first_hit(sents, kws)
+        s = _first_hit(customer_sents, kws)
         if s:
             found.append(ctype)
             spans.append(s)
