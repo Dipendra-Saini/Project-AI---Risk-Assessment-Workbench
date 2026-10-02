@@ -10,7 +10,7 @@
 ## Model inventory
 | Id | Purpose | Provider (free) | Prompt | Validation |
 |---|---|---|---|---|
-| M-01 | Intake extraction | Groq llama-3.1-8b-instant -> Gemini Flash | `ai/prompts/extract_intake.yaml` | Schema + span check + G0 |
+| M-01 | Intake extraction | Groq qwen/qwen3.8-27b -> Gemini Flash | `ai/prompts/extract_intake.yaml` | Schema + span check + G0 |
 | M-02 | Change-type fallback classifier | Groq | `classify_change.yaml` | Enum schema |
 | M-03 | Factor suggestion (rule gaps) | Groq | `suggest_factor.yaml` | Schema, range 1-5, citation must exist, G1 |
 | M-04 | Narrative drafter | Gemini Flash -> Groq | `draft_assessment.yaml` | Citation check, critic, G2 |

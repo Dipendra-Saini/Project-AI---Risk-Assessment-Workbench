@@ -8,7 +8,7 @@ outages. Token efficiency is judged.
 
 ## Decision
 - Two tiers: `small` (extraction, classification, factor suggestions) routes to
-  Groq `llama-3.1-8b-instant` first, Gemini Flash second. `large` (drafting,
+  Groq `qwen/qwen3.8-27b` first, Gemini Flash second. `large` (drafting,
   critique) routes to Gemini Flash first, Groq second.
 - JSON mode on both providers + Pydantic validation + one repair retry.
 - Gemini "thinking" budget set to 0: structured drafting does not need it and

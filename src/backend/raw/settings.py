@@ -17,10 +17,10 @@ class Settings(BaseSettings):
     llm_mode: str = "live"  # live | offline | replay
     llm_record: bool = False
     gemini_api_key: str = ""
-    gemini_model: str = "gemini-2.5-flash"
+    gemini_model: str = "gemini-3.8-flash"
     gemini_embed_model: str = "gemini-embedding-001"
     groq_api_key: str = ""
-    groq_model: str = "llama-3.1-8b-instant"
+    groq_model: str = "qwen/qwen3.8-27b"
     llm_timeout_s: float = 30.0
     embed_dim: int = 768
 

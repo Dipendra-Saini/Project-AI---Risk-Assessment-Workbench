@@ -18,3 +18,5 @@ uploads/
 *.tsbuildinfo
 evals/recordings/*.tmp
 evals/.work/
+.hypothesis/
+.cursor/mcp.json

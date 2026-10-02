@@ -88,8 +88,8 @@ submit → classify → extract (small LLM, span-checked) → ⏸ G0 PO confirms
 
 | tier | first | then | then |
 |---|---|---|---|
-| small (extract, classify, suggest) | Groq Llama 3.1 8B | Gemini Flash | deterministic offline provider |
-| large (draft, critique) | Gemini 2.5 Flash | Groq | deterministic offline provider |
+| small (extract, classify, suggest) | Groq Qwen3.8 27B | Gemini Flash | deterministic offline provider |
+| large (draft, critique) | Gemini 3.8 Flash | Groq | deterministic offline provider |
 
 - Every call: response cache → budget check → provider → JSON-schema validation → ledger row
   (prompt id@version, model, tokens, latency, fallback reason).

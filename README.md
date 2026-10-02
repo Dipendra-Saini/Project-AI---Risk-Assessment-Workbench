@@ -41,8 +41,8 @@ Open http://localhost:5173 and click a persona. Every demo password is `demo`.
 ### Free LLM keys (optional, no credit card)
 | provider | where | used for |
 |---|---|---|
-| Google Gemini | https://aistudio.google.com/apikey → `GEMINI_API_KEY` | narrative drafting and critique (`gemini-2.5-flash`), embeddings |
-| Groq | https://console.groq.com/keys → `GROQ_API_KEY` | extraction, classification, factor suggestions (`llama-3.1-8b-instant`) |
+| Google Gemini | https://aistudio.google.com/apikey → `GEMINI_API_KEY` | narrative drafting and critique (`gemini-3.8-flash`), embeddings |
+| Groq | https://console.groq.com/keys → `GROQ_API_KEY` | extraction, classification, factor suggestions (`qwen/qwen3.8-27b`) |
 
 Each provider falls back to the other, then to the deterministic offline provider. Every fallback
 shows on the case as a warning, so a reviewer always knows when AI help was degraded.

@@ -107,7 +107,7 @@ def main() -> None:
         ("Top-3 policy passages per dimension (hybrid BM25 + vector) instead of the whole corpus",
          f"corpus is {corpus_tok:,} tokens; the drafter sees about 12 passages x 350 characters",
          round(corpus_tok - 12 * 90)),
-        ("Small model (Groq Llama 3.1 8B) for extract/classify/suggest; Gemini Flash only for draft and critique, "
+        ("Small model (Groq Qwen3.8 27B) for extract/classify/suggest; Gemini Flash only for draft and critique, "
          "thinking budget 0",
          "routing by prompt tier in ai/prompts/*.yaml", None),
         ("Response cache keyed on sha256(prompt id, version, rendered text): reruns, the consistency evals and "

@@ -31,7 +31,7 @@ fewer tokens and requests per case means more cases per day inside the quota (ca
 | Critic runs deterministic checks first; the LLM critic only sees 'doubtful' claims | 475 claims checked deterministically; LLM critic needed on 0/25 cases (offline drafts quote their sources, so live drafts will need it more often; saving assumes one 900-token call per case) | 900 |
 | Context pack (~150 tokens) replaces raw documents in every node after extraction | golden briefs average 116 tokens; a real 10-page product brief is ~5,000, so this lever grows linearly with document size | 347 |
 | Top-3 policy passages per dimension (hybrid BM25 + vector) instead of the whole corpus | corpus is 3,185 tokens; the drafter sees about 12 passages x 350 characters | 2,105 |
-| Small model (Groq Llama 3.1 8B) for extract/classify/suggest; Gemini Flash only for draft and critique, thinking budget 0 | routing by prompt tier in ai/prompts/*.yaml | - |
+| Small model (Groq Qwen3.8 27B) for extract/classify/suggest; Gemini Flash only for draft and critique, thinking budget 0 | routing by prompt tier in ai/prompts/*.yaml | - |
 | Response cache keyed on sha256(prompt id, version, rendered text): reruns, the consistency evals and identical cases cost 0 | measured in live mode (cache_hit column); replay in CI is a cache by construction | - |
 | Per-case token budget (12k): past it the node uses the deterministic fallback instead of failing | max estimated case total in this run: 7,356 | - |
 
