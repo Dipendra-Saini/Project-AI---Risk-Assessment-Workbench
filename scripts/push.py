@@ -34,8 +34,11 @@ def main() -> None:
     local = repo.refs.read_ref(b"HEAD")
     if local.startswith(b"ref: "):
         local = local[5:]
-    porcelain.push(repo, url, refspecs=[local + b":refs/heads/" + branch.encode()],
-                   username="x-access-token", password=token(), errstream=sys.stderr.buffer)
+    result = porcelain.push(repo, url, refspecs=[local + b":refs/heads/" + branch.encode()],
+                            username="x-access-token", password=token(), errstream=sys.stderr.buffer)
+    failed = {ref.decode(): err for ref, err in (getattr(result, "ref_status", None) or {}).items() if err}
+    if failed:
+        sys.exit(f"push rejected: {failed}")
     print(f"pushed {repo.head().decode()[:10]} to {url} ({branch})")
 
 
